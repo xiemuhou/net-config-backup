@@ -503,12 +503,12 @@ onedrive --confdir="/opt/net-config-backup/onedrive-conf"
 
 #### 8.2.4 同步到他人共享给你的 OneDrive 文件夹
 
-如果使用 `hp.tan@cosmax.com` 登录，但要写入 `meeting.gz@cosmax.com` 创建并共享给你的目录，建议先在 OneDrive 网页端操作：
+如果使用 `hp.tan@qq.com` 登录，但要写入 `meeting@qq.com` 创建并共享给你的目录，建议先在 OneDrive 网页端操作：
 
 ```text
-1. 登录 hp.tan@cosmax.com
+1. 登录 hp.tan@qq.com
 2. 打开“共享”
-3. 找到 meeting.gz@cosmax.com 共享给你的文件夹
+3. 找到 meeting@qq.com 共享给你的文件夹
 4. 选择“添加快捷方式到我的文件”
 ```
 
