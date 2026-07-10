@@ -1,0 +1,147 @@
+# Copy this file to devices.yaml and edit it for your environment.
+
+backup_dir: backups
+log_dir: logs
+log_level: INFO
+
+devices:
+  core-room:
+    - device_type: huawei
+      role: core-switch
+      host: 192.168.1.1
+      transport: ssh
+      username: backup
+      password_env: HUAWEI_BACKUP_PASSWORD
+      port: 22
+      file_extension: cfg
+
+  office-a:
+    - device_type: cisco
+      role: switch
+      host: 192.168.1.2
+      transport: ssh
+      username: backup
+      password_env: CISCO_BACKUP_PASSWORD
+      secret_env: CISCO_ENABLE_PASSWORD
+      port: 22
+      file_extension: cfg
+
+    - device_type: cisco
+      role: switch
+      host: 192.168.1.20
+      transport: telnet
+      username: backup
+      password_env: CISCO_BACKUP_PASSWORD
+      # Telnet defaults to port 23 when port is omitted.
+      # port: 23
+      file_extension: cfg
+
+  office-b:
+    - device_type: huawei
+      role: switch
+      host: 192.168.1.21
+      transport: telnet
+      username: backup
+      password_env: HUAWEI_BACKUP_PASSWORD
+      file_extension: cfg
+
+  firewall-zone:
+    - device_type: fortinet
+      role: firewall
+      host: 192.168.1.22
+      transport: telnet
+      username: backup
+      password_env: FORTIGATE_BACKUP_PASSWORD
+      file_extension: conf
+
+  office-c:
+    - device_type: h3c
+      role: switch
+      host: 192.168.1.23
+      transport: ssh
+      username: backup
+      password_env: H3C_BACKUP_PASSWORD
+      port: 22
+      file_extension: cfg
+
+    - device_type: h3c
+      role: switch
+      host: 192.168.1.24
+      transport: telnet
+      username: backup
+      password_env: H3C_BACKUP_PASSWORD
+      file_extension: cfg
+
+  wireless-zone:
+    - device_type: cisco_ac
+      role: ac
+      host: 192.168.2.10
+      transport: ssh
+      username: backup
+      password_env: CISCO_AC_BACKUP_PASSWORD
+      pre_backup_commands:
+        - config paging disable
+      file_extension: cfg
+
+    - device_type: huawei_ac
+      role: ac
+      host: 192.168.2.11
+      transport: ssh
+      username: backup
+      password_env: HUAWEI_AC_BACKUP_PASSWORD
+      file_extension: cfg
+
+  sundray-zone:
+    - device_type: sundray
+      role: switch
+      host: 192.168.3.10
+      transport: ssh
+      username: backup
+      password_env: SUNDRAY_BACKUP_PASSWORD
+      command_method: timing
+      read_timeout: 180
+      file_extension: cfg
+
+    - device_type: sundray
+      role: switch
+      host: 192.168.3.11
+      transport: telnet
+      username: backup
+      password_env: SUNDRAY_BACKUP_PASSWORD
+      command_method: timing
+      read_timeout: 300
+      last_read: 8
+      username_pattern: "(?:\\(none\\)\\s*)?(?:login|Login|Username|username):"
+      password_pattern: "(?:Password|password):"
+      expect_string: "Switch#"
+      file_extension: cfg
+
+  sonicwall-zone:
+    - device_type: sonicwall
+      role: firewall
+      host: 192.168.4.10
+      transport: ssh
+      username: backup
+      password_env: SONICWALL_BACKUP_PASSWORD
+      pre_backup_commands:
+        - no cli pager session
+      file_extension: txt
+
+  A-Factory:
+    - device_type: fortinet
+      role: firewall
+      host: 172.16.73.1
+      transport: ssh
+      username: backup
+      password_env: FORTIGATE_BACKUP_PASSWORD
+      port: 22
+      file_extension: conf
+
+      # Optional: use a smaller backup command if full configuration is too large.
+      # backup_command: show
+
+      # Optional: override command list per device.
+      # backup_commands:
+      #   - show full-configuration
+      #   - show system interface
+      #   - show firewall policy

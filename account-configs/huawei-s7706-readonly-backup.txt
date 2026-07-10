@@ -1,0 +1,42 @@
+# Huawei S7706 备份账号配置示例
+# 目标：账号保持 level 1，只额外允许查看当前配置，供自动备份脚本使用。
+# 请把 <STRONG_PASSWORD> 替换为强密码。
+
+system-view
+
+stelnet server enable
+
+aaa
+local-user backup password irreversible-cipher <STRONG_PASSWORD>
+local-user backup privilege level 1
+local-user backup service-type ssh
+quit
+
+user-interface vty 0 4
+authentication-mode aaa
+protocol inbound ssh
+user privilege level 1
+quit
+
+# 允许 level 1 账号执行备份所需命令。
+# 如果设备提示某条 command-privilege 命令不存在，先不要保存，
+# 使用 display version 确认 VRP 版本后再按版本调整。
+#
+# S7706 部分 VRP 版本不接受只授权 display 父命令，会提示：
+# Error: Failed to process the command, please specify the command.
+# 因此这里直接授权完整命令。
+command-privilege level 1 view shell display current-configuration
+command-privilege level 1 view shell screen-length
+
+save
+
+# 验证方法：
+# 1. 用 backup 账号 SSH 登录 S7706。
+# 2. 执行：screen-length 0 temporary
+# 3. 执行：display current-configuration
+# 4. 如果仍提示权限不足，回到管理员账号尝试：
+#    command-privilege level 1 view global display current-configuration
+#
+# 注意：
+# display current-configuration 在华为 VRP 中默认通常属于 level 3 命令。
+# 这个模板不是把账号升到 level 3，而是把指定查看命令降到 level 1。

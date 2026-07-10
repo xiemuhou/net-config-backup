@@ -1,0 +1,41 @@
+# FortiGate 只读备份账号示例
+# 请把 <STRONG_PASSWORD> 替换为强密码。
+
+config system accprofile
+    edit "backup-readonly"
+        set secfabgrp read
+        set ftviewgrp read
+        set authgrp read
+        set sysgrp read
+        set netgrp read
+        set loggrp read
+        set fwgrp read
+        set vpngrp read
+        set utmgrp read
+        set wanoptgrp read
+        set wifi read
+    next
+end
+
+config system admin
+    edit "backup"
+        set password <STRONG_PASSWORD>
+        set accprofile "backup-readonly"
+        set vdom "root"
+        set ssh-public-key1 ''
+    next
+end
+
+# 可选：限制备份账号只允许从备份服务器 IP 登录
+# 把 <BACKUP_SERVER_IP> 替换为备份服务器地址。
+#
+# config system admin
+#     edit "backup"
+#         set trusthost1 <BACKUP_SERVER_IP> 255.255.255.255
+#     next
+# end
+
+# 说明：
+# 1. 备份脚本默认使用 show full-configuration。
+# 2. 如果设备启用了多个 VDOM，请根据实际情况调整 set vdom。
+# 3. 如果只读 profile 无法输出完整配置，需要检查 FortiOS 版本和权限项。

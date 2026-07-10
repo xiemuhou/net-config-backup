@@ -1,0 +1,54 @@
+# FutureMatrix S200-24P4X-A2 备份账号说明
+
+现象：
+
+command-privilege level 1 view shell display current-configuration
+Error: This command cannot be executed on the device.
+
+command-privilege level 1 view shell screen-length
+Error: This command cannot be executed on the device.
+
+结论：
+
+该型号/版本存在 command-privilege 命令框架，例如：
+
+command-privilege level 1 view shell ?
+  TEXT  Command to be set right
+
+但它不允许把 display current-configuration、screen-length 这类具体命令下放给 level 1 用户。
+因此不能照搬 S7706 的“账号保持 level 1，只放行 display current-configuration”方案。
+
+可选方案：
+
+1. 如果必须通过 SSH 自动备份完整配置：
+   创建一个专用备份账号，权限给到 level 3，并尽量用源地址限制、强密码、独立账号、日志审计降低风险。
+
+2. 如果必须严格只读：
+   检查设备是否支持 TACACS+/RADIUS 命令授权，使用认证服务器按用户精确允许 show/display 配置命令。
+   如果该型号不支持命令授权，则通过 SSH CLI 做“严格只读完整配置备份”不可行。
+
+3. 如果设备 Web 管理支持只读账号导出配置：
+   可以考虑改用 Web/API/配置文件导出方式，但需要单独验证该型号是否支持自动化下载。
+
+示例：专用备份账号 level 3
+
+system-view
+
+aaa
+local-user backup password irreversible-cipher <STRONG_PASSWORD>
+local-user backup privilege level 3
+local-user backup service-type ssh
+quit
+
+# 不建议盲目修改 user-interface vty，避免影响其他管理员。
+# 如果当前已经可以 SSH 登录，可先不改 VTY。
+
+save
+
+安全建议：
+
+- 该账号只用于备份，不给人工日常运维使用。
+- 使用强密码，并定期轮换。
+- 如果设备支持 trust host / ACL / SSH 源地址限制，只允许备份服务器 IP 登录。
+- 开启登录日志审计。
+- 不要把该密码写入 devices.yaml，使用 backup.env + password_env。

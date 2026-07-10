@@ -1,0 +1,36 @@
+! Cisco IOS / IOS-XE 只读备份账号示例
+! 请把 <STRONG_PASSWORD> 替换为强密码。
+
+conf t
+
+! 创建本地用户，privilege 1 为低权限账号
+username backup privilege 1 secret <STRONG_PASSWORD>
+
+! 开启 AAA 本地认证
+aaa new-model
+aaa authentication login default local
+
+! 允许 privilege 1 执行 show running-config
+! 注意：这会让所有 privilege 1 用户具备查看 running-config 的能力。
+privilege exec level 1 show running-config
+privilege exec level 1 show startup-config
+
+! 只允许 SSH 登录
+ip domain-name example.local
+crypto key generate rsa modulus 2048
+ip ssh version 2
+
+line vty 0 4
+ login authentication default
+ transport input ssh
+ exec-timeout 10 0
+exit
+
+end
+write memory
+
+! 说明：
+! 1. Cisco 默认低权限用户通常不能执行 show running-config。
+! 2. 上面的 privilege 命令会开放 show running-config 给 privilege 1。
+! 3. 如果你不希望全局开放 privilege 1，建议改用 TACACS+ 做按用户命令授权。
+! 4. 如果设备已有 AAA/TACACS 配置，不要直接覆盖 aaa authentication login default。

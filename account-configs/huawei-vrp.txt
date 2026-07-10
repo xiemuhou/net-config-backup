@@ -1,0 +1,51 @@
+# Huawei VRP 只读备份账号示例
+# 适用于常见 Huawei S 系列交换机，例如 S7706。
+# 请把 <STRONG_PASSWORD> 替换为强密码。
+
+system-view
+
+# 开启 SSH / Stelnet 服务
+stelnet server enable
+ssh server-source all-interface
+
+# 创建本地用户
+aaa
+local-user backup password irreversible-cipher <STRONG_PASSWORD>
+local-user backup privilege level 1
+local-user backup service-type ssh
+quit
+
+# S7706 / VRP 关键点：
+# display current-configuration 默认通常是 level 3 命令，
+# level 1 用户默认无法查看设备配置。
+# 下面只把备份需要的查看命令授权给 level 1。
+#
+# 不同 VRP 版本的 view 名称可能略有差异：
+# - 大多数 S 系列可使用 view shell
+# - 部分新版本/CE 风格系统可能需要 view global
+#
+# 如果第一组命令可用，优先使用第一组。
+# 部分 S7706 VRP 版本不接受只授权 display 父命令，
+# 会提示 "please specify the command"，这种情况可跳过 display 父命令。
+command-privilege level 1 view shell display current-configuration
+command-privilege level 1 view shell screen-length
+
+# 如果设备提示 view shell 不适用，或备份仍提示权限不足，再尝试以下命令：
+# command-privilege level 1 view global display current-configuration
+# command-privilege level 1 view shell screen-length
+
+# 创建 VTY 登录策略：只允许 SSH
+user-interface vty 0 4
+authentication-mode aaa
+protocol inbound ssh
+user privilege level 1
+quit
+
+# 保存配置
+save
+
+# 说明：
+# 1. 备份脚本默认使用 display current-configuration。
+# 2. 不建议直接给备份账号 level 15。
+# 3. 如果你的环境使用 HWTACACS/RADIUS，建议用命令授权模板精确放行 display current-configuration。
+# 4. command-privilege 会改变对应命令的本地权限级别，上线前请先在单台 S7706 测试。
